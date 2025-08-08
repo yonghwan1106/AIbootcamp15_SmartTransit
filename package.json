@@ -8,6 +8,8 @@
     "server": "nodemon server/index.js",
     "client": "cd client && npm start",
     "build": "cd client && npm run build",
+    "start": "node server/index.js",
+    "vercel-build": "cd client && npm ci && npm run build",
     "test": "jest"
   },
   "keywords": ["transit", "ai", "prediction", "congestion", "smart-city"],
