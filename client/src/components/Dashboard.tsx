@@ -43,6 +43,51 @@ const Dashboard: React.FC = () => {
   // 기본 즐겨찾기 역들 (constants에서 가져오기)
   const defaultFavoriteStationIds = DEFAULT_SETTINGS.favoriteStationIds;
 
+  const loadCongestionData = useCallback(async (stations?: Station[]) => {
+    const stationsToLoad = stations || selectedStations;
+    if (stationsToLoad.length === 0) return;
+
+    try {
+      const congestionPromises = stationsToLoad.map(station =>
+        congestionApi.getRealtime(station.id)
+      );
+
+      const results = await Promise.allSettled(congestionPromises);
+      const newCongestionData: { [key: string]: CongestionData } = {};
+
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled' && result.value?.data.status === 'success' && result.value.data.data) {
+          const station = stationsToLoad[index];
+          newCongestionData[station.id] = result.value.data.data;
+        } else if (result.status === 'rejected') {
+          console.error(`Error loading congestion for ${stationsToLoad[index].name}:`, result.reason);
+        }
+      });
+
+      setCongestionData(prev => ({ ...prev, ...newCongestionData }));
+      
+      // 성공적으로 로드된 데이터가 없으면 경고 표시
+      const successCount = Object.keys(newCongestionData).length;
+      if (successCount === 0 && stationsToLoad.length > 0) {
+        toast.warning(
+          '혼잡도 데이터 없음',
+          '실시간 혼잡도 정보를 가져올 수 없습니다.'
+        );
+      } else if (successCount < stationsToLoad.length) {
+        toast.info(
+          '일부 데이터 로딩 실패',
+          `${stationsToLoad.length}개 중 ${successCount}개 역의 데이터를 불러왔습니다.`
+        );
+      }
+    } catch (err: any) {
+      console.error('Error loading congestion data:', err);
+      toast.error(
+        '혼잡도 데이터 로딩 실패',
+        '실시간 혼잡도 정보를 불러올 수 없습니다.'
+      );
+    }
+  }, [selectedStations, toast]);
+
   useEffect(() => {
     loadInitialData();
   }, []);
@@ -99,51 +144,6 @@ const Dashboard: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const loadCongestionData = useCallback(async (stations?: Station[]) => {
-    const stationsToLoad = stations || selectedStations;
-    if (stationsToLoad.length === 0) return;
-
-    try {
-      const congestionPromises = stationsToLoad.map(station =>
-        congestionApi.getRealtime(station.id)
-      );
-
-      const results = await Promise.allSettled(congestionPromises);
-      const newCongestionData: { [key: string]: CongestionData } = {};
-
-      results.forEach((result, index) => {
-        if (result.status === 'fulfilled' && result.value?.data.status === 'success' && result.value.data.data) {
-          const station = stationsToLoad[index];
-          newCongestionData[station.id] = result.value.data.data;
-        } else if (result.status === 'rejected') {
-          console.error(`Error loading congestion for ${stationsToLoad[index].name}:`, result.reason);
-        }
-      });
-
-      setCongestionData(prev => ({ ...prev, ...newCongestionData }));
-      
-      // 성공적으로 로드된 데이터가 없으면 경고 표시
-      const successCount = Object.keys(newCongestionData).length;
-      if (successCount === 0 && stationsToLoad.length > 0) {
-        toast.warning(
-          '혼잡도 데이터 없음',
-          '실시간 혼잡도 정보를 가져올 수 없습니다.'
-        );
-      } else if (successCount < stationsToLoad.length) {
-        toast.info(
-          '일부 데이터 로딩 실패',
-          `${stationsToLoad.length}개 중 ${successCount}개 역의 데이터를 불러왔습니다.`
-        );
-      }
-    } catch (err: any) {
-      console.error('Error loading congestion data:', err);
-      toast.error(
-        '혼잡도 데이터 로딩 실패',
-        '실시간 혼잡도 정보를 불러올 수 없습니다.'
-      );
-    }
-  }, [selectedStations, toast]);
 
   const handleFavoriteStationsChange = useCallback((stationIds: string[]) => {
     const favorites = allStations.filter((station: Station) => 
