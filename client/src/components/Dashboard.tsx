@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -27,7 +27,6 @@ ChartJS.register(
 
 const Dashboard: React.FC = () => {
   const [selectedStations, setSelectedStations] = useState<Station[]>([]);
-  const [allStations, setAllStations] = useState<Station[]>([]);
   const [congestionData, setCongestionData] = useState<{ [key: string]: CongestionData }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,8 +36,9 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadInitialData();
-    const interval = setInterval(loadCongestionData, 30000); // 30초마다 업데이트
+    const interval = setInterval(() => loadCongestionData(), 30000); // 30초마다 업데이트
     return () => clearInterval(interval);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadInitialData = async () => {
@@ -49,7 +49,6 @@ const Dashboard: React.FC = () => {
       const stationsResponse = await stationApi.getAll({ station_type: 'subway' });
       if (stationsResponse.data.status === 'success') {
         const stations = stationsResponse.data.data!.stations;
-        setAllStations(stations);
         
         // 즐겨찾기 역들 필터링
         const favorites = stations.filter(station => 
@@ -68,7 +67,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const loadCongestionData = async (stations?: Station[]) => {
+  const loadCongestionData = useCallback(async (stations?: Station[]) => {
     const stationsToLoad = stations || selectedStations;
     if (stationsToLoad.length === 0) return;
 

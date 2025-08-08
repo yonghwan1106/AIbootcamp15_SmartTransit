@@ -32,6 +32,7 @@ const StationSearch: React.FC = () => {
 
   useEffect(() => {
     debouncedSearch(searchTerm);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, stations]);
 
   const loadStations = async () => {

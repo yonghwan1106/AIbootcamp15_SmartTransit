@@ -15,6 +15,7 @@ const Prediction: React.FC = () => {
 
   useEffect(() => {
     loadStations();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadStations = async () => {
