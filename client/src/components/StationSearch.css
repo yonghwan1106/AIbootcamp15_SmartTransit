@@ -1,0 +1,564 @@
+.station-search {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.search-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.search-header h1 {
+  color: var(--text-inverse);
+  font-size: var(--text-5xl);
+  margin-bottom: var(--space-3);
+  font-weight: var(--font-extrabold);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.search-contest {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-4) 0;
+  font-weight: var(--font-medium);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: inline-block;
+}
+
+.search-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: var(--text-xl);
+  margin: 0;
+  font-weight: var(--font-medium);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+/* Search Container */
+.search-container {
+  margin-bottom: 40px;
+}
+
+.search-box {
+  position: relative;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  width: 100%;
+  padding: 15px 50px 15px 20px;
+  font-size: 1.1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 25px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+}
+
+.search-icon {
+  position: absolute;
+  right: 20px;
+  font-size: 1.2rem;
+  color: #999;
+  pointer-events: none;
+}
+
+.clear-button {
+  position: absolute;
+  right: 50px;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #999;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.clear-button:hover {
+  background: #f8f9fa;
+  color: #666;
+}
+
+/* Search Results */
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 5px;
+}
+
+.search-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  color: #666;
+}
+
+.station-list {
+  padding: 10px 0;
+}
+
+.station-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.station-item:hover {
+  background: #f8f9fa;
+  border-left-color: #667eea;
+}
+
+.station-item.selected {
+  background: #667eea;
+  color: white;
+  border-left-color: #5a6fd8;
+}
+
+.station-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.station-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.station-line {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.station-type {
+  font-size: 1.5rem;
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  color: #666;
+  text-align: center;
+}
+
+.no-results span {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+/* Station Details */
+.station-details {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.details-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.details-header h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.station-meta {
+  display: flex;
+  gap: 10px;
+}
+
+.line-badge,
+.station-type-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.details-loading,
+.details-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.details-error span {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+/* Congestion Details */
+.congestion-details {
+  padding: 25px;
+}
+
+.current-congestion {
+  margin-bottom: 30px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.congestion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.congestion-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.update-time {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.congestion-main {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.congestion-visual {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.congestion-icon {
+  font-size: 2.5rem;
+}
+
+.congestion-meter {
+  flex: 1;
+  height: 20px;
+  background: #e9ecef;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.congestion-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.congestion-percentage {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  font-size: 0.9rem;
+}
+
+.congestion-info {
+  text-align: right;
+}
+
+.congestion-level {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.passenger-count {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Upcoming Trains */
+.upcoming-trains {
+  margin-bottom: 30px;
+}
+
+.upcoming-trains h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.trains-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.train-item {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  border-left: 4px solid #667eea;
+}
+
+.train-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.train-number {
+  font-weight: 600;
+  color: #333;
+}
+
+.arrival-time {
+  font-weight: bold;
+  color: #667eea;
+}
+
+.train-congestion {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.train-congestion-bar {
+  flex: 1;
+  height: 12px;
+  background: #e9ecef;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+}
+
+.train-congestion-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+.train-congestion-text {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.train-status {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+}
+
+/* Car Congestion */
+.car-congestion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.car-label {
+  font-size: 0.9rem;
+  color: #666;
+  min-width: 60px;
+}
+
+.car-list {
+  display: flex;
+  gap: 4px;
+}
+
+.car-item {
+  width: 30px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  cursor: help;
+}
+
+/* Recommendations */
+.recommendations h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.recommendation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recommendation-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #e8f4fd;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.rec-icon {
+  font-size: 1.2rem;
+}
+
+/* Popular Stations */
+.popular-stations {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+}
+
+.popular-stations h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.popular-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.popular-station-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 15px;
+  background: #f8f9fa;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.popular-station-item:hover {
+  background: #667eea;
+  color: white;
+  border-color: #5a6fd8;
+  transform: translateY(-2px);
+}
+
+.popular-station-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.popular-station-line {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .station-search {
+    padding: 15px;
+  }
+  
+  .search-header h1 {
+    font-size: 2rem;
+  }
+  
+  .search-input {
+    padding: 12px 40px 12px 15px;
+    font-size: 1rem;
+  }
+  
+  .details-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .congestion-main {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .congestion-visual {
+    width: 100%;
+  }
+  
+  .train-congestion {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .car-congestion {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .popular-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
