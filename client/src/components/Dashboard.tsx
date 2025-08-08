@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -67,7 +67,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const loadCongestionData = useCallback(async (stations?: Station[]) => {
+  const loadCongestionData = async (stations?: Station[]) => {
     const stationsToLoad = stations || selectedStations;
     if (stationsToLoad.length === 0) return;
 
