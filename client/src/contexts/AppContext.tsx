@@ -213,7 +213,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     updateCongestionData: (data: { [key: string]: CongestionData }) => dispatch({ type: ActionType.UPDATE_CONGESTION_DATA, payload: data }),
     updateSettings: (settings: Partial<AppSettings>) => dispatch({ type: ActionType.UPDATE_SETTINGS, payload: settings }),
     setFavoriteStations: (stationIds: string[]) => {
-      const updatedSettings = { ...state.settings, favoriteStationIds: stationIds };
       localStorage.setItem(STORAGE_KEYS.favoriteStations, JSON.stringify(stationIds));
       dispatch({ type: ActionType.UPDATE_SETTINGS, payload: { favoriteStationIds: stationIds } });
     }

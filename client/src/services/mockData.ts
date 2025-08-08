@@ -9,12 +9,22 @@ export interface Station {
   address: string;
 }
 
+export interface Vehicle {
+  vehicle_id: string;
+  congestion: number;
+  arrival_time: string;
+  car_positions: number[];
+}
+
 export interface CongestionData {
   station_id: string;
-  vehicle_id: string;
-  congestion_level: number;
+  station_name: string;
+  line_id: string;
+  current_congestion: number;
+  congestion_level: 'low' | 'medium' | 'heavy';
   passenger_count: number;
-  timestamp: string;
+  vehicles: Vehicle[];
+  updated_at: string;
   data_source: string;
 }
 
@@ -130,6 +140,42 @@ const STATION_CHARACTERISTICS: Record<string, { multiplier: number }> = {
   '215': { multiplier: 1.15 } // 잠실역
 };
 
+// 혼잡도 레벨 변환 함수
+const getCongestionLevel = (level: number): 'low' | 'medium' | 'heavy' => {
+  if (level <= 30) return 'low';
+  if (level <= 70) return 'medium';
+  return 'heavy';
+};
+
+// 역 이름 매핑
+const getStationName = (stationId: string): string => {
+  const station = mockStations.find(s => s.id === stationId);
+  return station ? station.name : `역${stationId}`;
+};
+
+// 차량 데이터 생성
+const generateVehicles = (stationId: string, baseCongestion: number): Vehicle[] => {
+  const vehicles: Vehicle[] = [];
+  for (let i = 1; i <= 3; i++) {
+    const vehicleId = `${stationId}_train_${i}`;
+    const vehicleCongestion = Math.max(0, Math.min(100, baseCongestion + (Math.random() - 0.5) * 20));
+    
+    const carPositions: number[] = [];
+    for (let car = 1; car <= 10; car++) {
+      const carCongestion = Math.max(0, Math.min(100, vehicleCongestion + (Math.random() - 0.5) * 40));
+      carPositions.push(Math.round(carCongestion));
+    }
+    
+    vehicles.push({
+      vehicle_id: vehicleId,
+      congestion: Math.round(vehicleCongestion),
+      arrival_time: `${i * 2}분 후`,
+      car_positions: carPositions
+    });
+  }
+  return vehicles;
+};
+
 export const generateRealtimeCongestion = (stationId: string): CongestionData => {
   const now = new Date();
   const hour = now.getHours();
@@ -144,12 +190,18 @@ export const generateRealtimeCongestion = (stationId: string): CongestionData =>
   const randomVariation = (Math.random() - 0.5) * 30;
   const finalLevel = Math.max(0, Math.min(100, adjustedLevel + randomVariation));
   
+  const station = mockStations.find(s => s.id === stationId);
+  const vehicles = generateVehicles(stationId, finalLevel);
+  
   return {
     station_id: stationId,
-    vehicle_id: `${stationId}_${Math.floor(Math.random() * 10) + 1}`,
-    congestion_level: Math.round(finalLevel),
+    station_name: getStationName(stationId),
+    line_id: station?.line_id || '2',
+    current_congestion: Math.round(finalLevel),
+    congestion_level: getCongestionLevel(finalLevel),
     passenger_count: Math.round((finalLevel / 100) * 150),
-    timestamp: now.toISOString(),
+    vehicles,
+    updated_at: now.toISOString(),
     data_source: 'simulated'
   };
 };
@@ -214,7 +266,7 @@ const getEventImpact = (targetTime: Date): string => {
   return 'none';
 };
 
-export const generateRecommendedRoutes = (origin: string, destination: string) => {
+export const generateRecommendedRoutes = (origin: { lat: number; lng: number }, destination: { lat: number; lng: number }) => {
   const routes = [];
   const baseTime = 45;
   

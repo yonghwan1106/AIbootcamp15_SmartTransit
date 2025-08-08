@@ -78,7 +78,7 @@ const RouteRecommendation: React.FC = () => {
   };
 
   const handleStationChange = (type: 'origin' | 'destination', stationId: string) => {
-    const station = stations.find(s => s.id === stationId) || null;
+    const station = stations.find((s: Station) => s.id === stationId) || null;
     if (type === 'origin') {
       setOriginStation(station);
     } else {

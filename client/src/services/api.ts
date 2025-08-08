@@ -71,7 +71,7 @@ const createMockResponse = <T>(data: T): Promise<{ data: ApiResponse<T> }> => {
 // Station API
 export const stationApi = {
   // Get all stations
-  getAll: async (params?: { line_id?: string; station_type?: 'subway' | 'bus' }) => {
+  getAll: async (params?: { line_id?: string; station_type?: 'subway' | 'bus' }): Promise<{ data: ApiResponse<{ stations: Station[]; total: number }> }> => {
     if (USE_MOCK_DATA) {
       let filteredStations = mockStations;
       

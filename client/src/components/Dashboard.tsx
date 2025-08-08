@@ -15,7 +15,7 @@ import { Station, CongestionData } from '../types';
 import { getCongestionColor, getCongestionIcon, formatTime, formatRelativeTime } from '../utils/helpers';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './common/Toast';
-import { DEFAULT_SETTINGS, STORAGE_KEYS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../config/constants';
+import { DEFAULT_SETTINGS, STORAGE_KEYS, ERROR_MESSAGES } from '../config/constants';
 import FavoriteStations from './FavoriteStations';
 import NotificationSystem from './NotificationSystem';
 import UserProfile from './UserProfile';
@@ -45,10 +45,17 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadInitialData();
-    const interval = setInterval(() => loadCongestionData(), DEFAULT_SETTINGS.updateInterval);
-    return () => clearInterval(interval);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (selectedStations.length === 0) return;
+
+    const interval = setInterval(() => {
+      loadCongestionData(selectedStations);
+    }, DEFAULT_SETTINGS.updateInterval);
+    
+    return () => clearInterval(interval);
+  }, [selectedStations, loadCongestionData]);
 
   const loadInitialData = async () => {
     try {
@@ -99,19 +106,18 @@ const Dashboard: React.FC = () => {
 
     try {
       const congestionPromises = stationsToLoad.map(station =>
-        congestionApi.getRealtime(station.id).catch(err => {
-          console.error(`Error loading congestion for ${station.name}:`, err);
-          return null;
-        })
+        congestionApi.getRealtime(station.id)
       );
 
-      const results = await Promise.all(congestionPromises);
+      const results = await Promise.allSettled(congestionPromises);
       const newCongestionData: { [key: string]: CongestionData } = {};
 
       results.forEach((result, index) => {
-        if (result?.data.status === 'success' && result.data.data) {
+        if (result.status === 'fulfilled' && result.value?.data.status === 'success' && result.value.data.data) {
           const station = stationsToLoad[index];
-          newCongestionData[station.id] = result.data.data;
+          newCongestionData[station.id] = result.value.data.data;
+        } else if (result.status === 'rejected') {
+          console.error(`Error loading congestion for ${stationsToLoad[index].name}:`, result.reason);
         }
       });
 

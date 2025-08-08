@@ -111,7 +111,7 @@ const NotificationSystem: React.FC<NotificationSystemProps> = ({ stations, conge
   };
 
   const addRule = (stationId: string, threshold: number, type: 'above' | 'below', timeRange?: { start: string; end: string }) => {
-    const station = stations.find(s => s.id === stationId);
+    const station = stations.find((s: Station) => s.id === stationId);
     if (!station) return;
 
     const newRule: NotificationRule = {

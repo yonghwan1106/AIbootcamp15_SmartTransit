@@ -45,7 +45,7 @@ export const DEFAULT_SETTINGS = {
   },
   
   displaySettings: {
-    theme: 'auto', // 'light' | 'dark' | 'auto'
+    theme: 'auto' as 'light' | 'dark' | 'auto',
     language: 'ko',
     dateFormat: 'YYYY-MM-DD',
     timeFormat: 'HH:mm'
@@ -108,7 +108,7 @@ export const SUCCESS_MESSAGES = {
   FAVORITES_UPDATED: '즐겨찾기가 업데이트되었습니다.'
 } as const;
 
-export default {
+const Constants = {
   APP_CONFIG,
   MAP_CONFIG,
   FEATURES,
@@ -120,3 +120,5 @@ export default {
   ERROR_MESSAGES,
   SUCCESS_MESSAGES
 };
+
+export default Constants;

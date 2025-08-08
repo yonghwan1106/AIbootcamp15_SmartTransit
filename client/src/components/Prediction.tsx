@@ -25,7 +25,7 @@ const Prediction: React.FC = () => {
       if (response.data.status === 'success') {
         setStations(response.data.data!.stations);
         // 기본으로 강남역 선택
-        const gangnam = response.data.data!.stations.find(s => s.id === '239');
+        const gangnam = response.data.data!.stations.find((s: Station) => s.id === '239');
         if (gangnam) {
           setSelectedStation(gangnam);
           await loadPrediction(gangnam, predictionHours);
@@ -55,7 +55,7 @@ const Prediction: React.FC = () => {
   };
 
   const handleStationChange = async (stationId: string) => {
-    const station = stations.find(s => s.id === stationId);
+    const station = stations.find((s: Station) => s.id === stationId);
     if (station) {
       setSelectedStation(station);
       await loadPrediction(station, predictionHours);

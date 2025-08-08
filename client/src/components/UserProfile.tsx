@@ -88,8 +88,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ stations, onClose }) => {
       return;
     }
 
-    const originStation = stations.find(s => s.id === newPattern.originStationId);
-    const destinationStation = stations.find(s => s.id === newPattern.destinationStationId);
+    const originStation = stations.find((s: Station) => s.id === newPattern.originStationId);
+    const destinationStation = stations.find((s: Station) => s.id === newPattern.destinationStationId);
 
     if (!originStation || !destinationStation) {
       alert('유효하지 않은 역입니다.');
