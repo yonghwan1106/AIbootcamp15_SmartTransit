@@ -13,6 +13,9 @@ import {
 import { stationApi, congestionApi } from '../services/api';
 import { Station, CongestionData } from '../types';
 import { getCongestionColor, getCongestionIcon, formatTime, formatRelativeTime } from '../utils/helpers';
+import FavoriteStations from './FavoriteStations';
+import NotificationSystem from './NotificationSystem';
+import UserProfile from './UserProfile';
 import './Dashboard.css';
 
 ChartJS.register(
@@ -27,12 +30,14 @@ ChartJS.register(
 
 const Dashboard: React.FC = () => {
   const [selectedStations, setSelectedStations] = useState<Station[]>([]);
+  const [allStations, setAllStations] = useState<Station[]>([]);
   const [congestionData, setCongestionData] = useState<{ [key: string]: CongestionData }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showUserProfile, setShowUserProfile] = useState(false);
 
-  // 즐겨찾기 역들 (기본값)
-  const favoriteStationIds = ['239', '252', '211', '216']; // 강남, 홍대입구, 건대입구, 잠실
+  // 기본 즐겨찾기 역들
+  const defaultFavoriteStationIds = ['221', '252', '211', '215', '101', '520', '411', '513'];
 
   useEffect(() => {
     loadInitialData();
@@ -49,10 +54,14 @@ const Dashboard: React.FC = () => {
       const stationsResponse = await stationApi.getAll({ station_type: 'subway' });
       if (stationsResponse.data.status === 'success') {
         const stations = stationsResponse.data.data!.stations;
+        setAllStations(stations);
         
-        // 즐겨찾기 역들 필터링
+        // 사용자 즐겨찾기가 있으면 사용, 없으면 기본값 사용
+        const savedFavorites = localStorage.getItem('favoriteStations');
+        const favoriteIds = savedFavorites ? JSON.parse(savedFavorites) : defaultFavoriteStationIds;
+        
         const favorites = stations.filter(station => 
-          favoriteStationIds.includes(station.id)
+          favoriteIds.includes(station.id)
         );
         setSelectedStations(favorites);
         
@@ -92,6 +101,18 @@ const Dashboard: React.FC = () => {
       setCongestionData(prev => ({ ...prev, ...newCongestionData }));
     } catch (err) {
       console.error('Error loading congestion data:', err);
+    }
+  };
+
+  const handleFavoriteStationsChange = (stationIds: string[]) => {
+    const favorites = allStations.filter(station => 
+      stationIds.includes(station.id)
+    );
+    setSelectedStations(favorites);
+    
+    // 새로 선택된 역들의 혼잡도 데이터 로드
+    if (favorites.length > 0) {
+      loadCongestionData(favorites);
     }
   };
 
@@ -218,7 +239,21 @@ const Dashboard: React.FC = () => {
         <p className="dashboard-subtitle">
           AI와 빅데이터 기술로 대중교통 혼잡도를 예측하고 개인 맞춤형 경로를 추천합니다
         </p>
+        <div className="dashboard-actions">
+          <button 
+            className="profile-btn"
+            onClick={() => setShowUserProfile(true)}
+          >
+            👤 사용자 프로필
+          </button>
+        </div>
       </div>
+
+      {/* 즐겨찾는 역 관리 */}
+      <FavoriteStations
+        onStationSelect={handleFavoriteStationsChange}
+        selectedStations={selectedStations.map(s => s.id)}
+      />
 
       {/* 실시간 혼잡도 카드 */}
       <div className="congestion-cards">
@@ -352,6 +387,20 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* 알림 시스템 */}
+      <NotificationSystem
+        stations={allStations}
+        congestionData={congestionData}
+      />
+
+      {/* 사용자 프로필 모달 */}
+      {showUserProfile && (
+        <UserProfile
+          stations={allStations}
+          onClose={() => setShowUserProfile(false)}
+        />
+      )}
     </div>
   );
 };

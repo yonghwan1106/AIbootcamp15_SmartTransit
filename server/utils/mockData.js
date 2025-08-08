@@ -20,14 +20,35 @@ const HOURLY_PATTERNS = {
 
 // 역별 특성 (혼잡도 가중치)
 const STATION_CHARACTERISTICS = {
-  '239': { name: '강남역', multiplier: 1.3, businessDistrict: true }, // 강남역 - 매우 혼잡
-  '252': { name: '홍대입구역', multiplier: 1.2, entertainmentDistrict: true }, // 홍대입구역
-  '211': { name: '건대입구역', multiplier: 1.1, universityArea: true }, // 건대입구역
-  '216': { name: '잠실역', multiplier: 1.15, shoppingArea: true }, // 잠실역
-  '240': { name: '역삼역', multiplier: 1.1, businessDistrict: true }, // 역삼역
-  '241': { name: '선릉역', multiplier: 1.0, businessDistrict: true }, // 선릉역
-  '242': { name: '삼성역', multiplier: 1.05, businessDistrict: true }, // 삼성역
-  '238': { name: '서초역', multiplier: 0.9, residential: true } // 서초역
+  // 주요 비즈니스 구역
+  '221': { name: '강남역', multiplier: 1.3, businessDistrict: true, transfer: true },
+  '220': { name: '역삼역', multiplier: 1.1, businessDistrict: true },
+  '219': { name: '선릉역', multiplier: 1.0, businessDistrict: true },
+  '218': { name: '삼성역', multiplier: 1.05, businessDistrict: true },
+  '101': { name: '서울역', multiplier: 1.25, mainStation: true, transfer: true },
+  '520': { name: '광화문역', multiplier: 1.2, businessDistrict: true },
+  '411': { name: '명동역', multiplier: 1.15, shoppingArea: true, touristArea: true },
+  
+  // 대학가/젊은층 지역
+  '252': { name: '홍대입구역', multiplier: 1.2, entertainmentDistrict: true, transfer: true },
+  '253': { name: '신촌역', multiplier: 1.1, universityArea: true },
+  '254': { name: '이대역', multiplier: 1.0, universityArea: true },
+  '211': { name: '건대입구역', multiplier: 1.1, universityArea: true, transfer: true },
+  
+  // 주거/상업 복합 지역
+  '215': { name: '잠실역', multiplier: 1.15, shoppingArea: true, transfer: true },
+  '513': { name: '여의도역', multiplier: 1.1, businessDistrict: true, transfer: true },
+  '223': { name: '서초역', multiplier: 0.9, residential: true },
+  '225': { name: '사당역', multiplier: 1.05, transfer: true },
+  
+  // 환승역 및 교통 허브
+  '206': { name: '왕십리역', multiplier: 1.1, transfer: true },
+  '525': { name: '왕십리역', multiplier: 1.1, transfer: true },
+  '328': { name: '고속터미널역', multiplier: 1.2, transfer: true, shoppingArea: true },
+  '329': { name: '교대역', multiplier: 1.0, transfer: true },
+  
+  // 기본 가중치 적용
+  'default': { multiplier: 0.85, residential: true }
 };
 
 /**
