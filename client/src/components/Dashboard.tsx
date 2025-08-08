@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -13,6 +13,9 @@ import {
 import { stationApi, congestionApi } from '../services/api';
 import { Station, CongestionData } from '../types';
 import { getCongestionColor, getCongestionIcon, formatTime, formatRelativeTime } from '../utils/helpers';
+import { useToast } from '../hooks/useToast';
+import { ToastContainer } from './common/Toast';
+import { DEFAULT_SETTINGS, STORAGE_KEYS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../config/constants';
 import FavoriteStations from './FavoriteStations';
 import NotificationSystem from './NotificationSystem';
 import UserProfile from './UserProfile';
@@ -35,13 +38,14 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showUserProfile, setShowUserProfile] = useState(false);
+  const toast = useToast();
 
-  // 기본 즐겨찾기 역들
-  const defaultFavoriteStationIds = ['221', '252', '211', '215', '101', '520', '411', '513'];
+  // 기본 즐겨찾기 역들 (constants에서 가져오기)
+  const defaultFavoriteStationIds = DEFAULT_SETTINGS.favoriteStationIds;
 
   useEffect(() => {
     loadInitialData();
-    const interval = setInterval(() => loadCongestionData(), 30000); // 30초마다 업데이트
+    const interval = setInterval(() => loadCongestionData(), DEFAULT_SETTINGS.updateInterval);
     return () => clearInterval(interval);
       // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -52,12 +56,12 @@ const Dashboard: React.FC = () => {
       
       // 모든 역 정보 로드
       const stationsResponse = await stationApi.getAll({ station_type: 'subway' });
-      if (stationsResponse.data.status === 'success') {
-        const stations = stationsResponse.data.data!.stations;
+      if (stationsResponse.data.status === 'success' && stationsResponse.data.data) {
+        const stations = stationsResponse.data.data.stations;
         setAllStations(stations);
         
         // 사용자 즐겨찾기가 있으면 사용, 없으면 기본값 사용
-        const savedFavorites = localStorage.getItem('favoriteStations');
+        const savedFavorites = localStorage.getItem(STORAGE_KEYS.favoriteStations);
         const favoriteIds = savedFavorites ? JSON.parse(savedFavorites) : defaultFavoriteStationIds;
         
         const favorites = stations.filter(station => 
@@ -68,15 +72,28 @@ const Dashboard: React.FC = () => {
         // 초기 혼잡도 데이터 로드
         await loadCongestionData(favorites);
       }
-    } catch (err) {
-      setError('데이터를 불러오는 중 오류가 발생했습니다.');
+    } catch (err: any) {
+      const errorMessage = err?.message || '데이터를 불러오는 중 오류가 발생했습니다.';
+      setError(errorMessage);
       console.error('Dashboard data loading error:', err);
+      
+      toast.error(
+        '데이터 로딩 실패',
+        ERROR_MESSAGES.DATA_LOADING_ERROR,
+        {
+          label: '다시 시도',
+          onClick: () => {
+            setError(null);
+            loadInitialData();
+          }
+        }
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const loadCongestionData = async (stations?: Station[]) => {
+  const loadCongestionData = useCallback(async (stations?: Station[]) => {
     const stationsToLoad = stations || selectedStations;
     if (stationsToLoad.length === 0) return;
 
@@ -92,19 +109,37 @@ const Dashboard: React.FC = () => {
       const newCongestionData: { [key: string]: CongestionData } = {};
 
       results.forEach((result, index) => {
-        if (result?.data.status === 'success') {
+        if (result?.data.status === 'success' && result.data.data) {
           const station = stationsToLoad[index];
-          newCongestionData[station.id] = result.data.data!;
+          newCongestionData[station.id] = result.data.data;
         }
       });
 
       setCongestionData(prev => ({ ...prev, ...newCongestionData }));
-    } catch (err) {
+      
+      // 성공적으로 로드된 데이터가 없으면 경고 표시
+      const successCount = Object.keys(newCongestionData).length;
+      if (successCount === 0 && stationsToLoad.length > 0) {
+        toast.warning(
+          '혼잡도 데이터 없음',
+          '실시간 혼잡도 정보를 가져올 수 없습니다.'
+        );
+      } else if (successCount < stationsToLoad.length) {
+        toast.info(
+          '일부 데이터 로딩 실패',
+          `${stationsToLoad.length}개 중 ${successCount}개 역의 데이터를 불러왔습니다.`
+        );
+      }
+    } catch (err: any) {
       console.error('Error loading congestion data:', err);
+      toast.error(
+        '혼잡도 데이터 로딩 실패',
+        '실시간 혼잡도 정보를 불러올 수 없습니다.'
+      );
     }
-  };
+  }, [selectedStations, toast]);
 
-  const handleFavoriteStationsChange = (stationIds: string[]) => {
+  const handleFavoriteStationsChange = useCallback((stationIds: string[]) => {
     const favorites = allStations.filter(station => 
       stationIds.includes(station.id)
     );
@@ -114,9 +149,9 @@ const Dashboard: React.FC = () => {
     if (favorites.length > 0) {
       loadCongestionData(favorites);
     }
-  };
+  }, [allStations, loadCongestionData]);
 
-  const generateChartData = () => {
+  const chartData = useMemo(() => {
     const now = new Date();
     const labels: string[] = [];
     const datasets: any[] = [];
@@ -158,9 +193,9 @@ const Dashboard: React.FC = () => {
     });
 
     return { labels, datasets };
-  };
+  }, [selectedStations, congestionData]);
 
-  const chartOptions = {
+  const chartOptions = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -202,7 +237,7 @@ const Dashboard: React.FC = () => {
         borderWidth: 3,
       },
     },
-  };
+  }), []);
 
   if (loading) {
     return (
@@ -338,7 +373,7 @@ const Dashboard: React.FC = () => {
       {/* 혼잡도 추이 차트 */}
       <div className="chart-container animate-fade-in-up">
         <div className="chart-wrapper">
-          <Line data={generateChartData()} options={chartOptions} />
+          <Line data={chartData} options={chartOptions} />
         </div>
       </div>
 
@@ -401,6 +436,11 @@ const Dashboard: React.FC = () => {
           onClose={() => setShowUserProfile(false)}
         />
       )}
+      
+      <ToastContainer
+        messages={toast.messages}
+        onClose={toast.removeToast}
+      />
     </div>
   );
 };

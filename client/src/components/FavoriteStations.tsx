@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { stationApi } from '../services/api';
 import { Station } from '../types';
+import { STORAGE_KEYS } from '../config/constants';
 import './FavoriteStations.css';
 
 interface FavoriteStationsProps {
@@ -8,7 +9,7 @@ interface FavoriteStationsProps {
   selectedStations: string[];
 }
 
-const FavoriteStations: React.FC<FavoriteStationsProps> = ({ onStationSelect, selectedStations }) => {
+const FavoriteStations: React.FC<FavoriteStationsProps> = React.memo(({ onStationSelect, selectedStations }) => {
   const [allStations, setAllStations] = useState<Station[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -18,7 +19,7 @@ const FavoriteStations: React.FC<FavoriteStationsProps> = ({ onStationSelect, se
   useEffect(() => {
     loadStations();
     // 로컬 스토리지에서 즐겨찾기 불러오기
-    const savedFavorites = localStorage.getItem('favoriteStations');
+    const savedFavorites = localStorage.getItem(STORAGE_KEYS.favoriteStations);
     if (savedFavorites) {
       const parsedFavorites = JSON.parse(savedFavorites);
       setFavorites(parsedFavorites);
@@ -47,7 +48,7 @@ const FavoriteStations: React.FC<FavoriteStationsProps> = ({ onStationSelect, se
       : [...favorites, stationId];
     
     setFavorites(newFavorites);
-    localStorage.setItem('favoriteStations', JSON.stringify(newFavorites));
+    localStorage.setItem(STORAGE_KEYS.favoriteStations, JSON.stringify(newFavorites));
     onStationSelect(newFavorites);
   };
 
@@ -138,6 +139,6 @@ const FavoriteStations: React.FC<FavoriteStationsProps> = ({ onStationSelect, se
       )}
     </div>
   );
-};
+});
 
 export default FavoriteStations;
