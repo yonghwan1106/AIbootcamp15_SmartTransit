@@ -16,7 +16,7 @@ const StationSearch: React.FC = () => {
   // 디바운스된 검색 함수
   const debouncedSearch = debounce((term: string) => {
     if (term.trim()) {
-      const filtered = stations.filter(station =>
+      const filtered = stations.filter((station: any) =>
         station.name.toLowerCase().includes(term.toLowerCase()) ||
         station.line_id.includes(term)
       );

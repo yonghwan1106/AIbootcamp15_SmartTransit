@@ -64,7 +64,7 @@ const Dashboard: React.FC = () => {
         const savedFavorites = localStorage.getItem(STORAGE_KEYS.favoriteStations);
         const favoriteIds = savedFavorites ? JSON.parse(savedFavorites) : defaultFavoriteStationIds;
         
-        const favorites = stations.filter(station => 
+        const favorites = stations.filter((station: Station) => 
           favoriteIds.includes(station.id)
         );
         setSelectedStations(favorites);
@@ -140,7 +140,7 @@ const Dashboard: React.FC = () => {
   }, [selectedStations, toast]);
 
   const handleFavoriteStationsChange = useCallback((stationIds: string[]) => {
-    const favorites = allStations.filter(station => 
+    const favorites = allStations.filter((station: Station) => 
       stationIds.includes(station.id)
     );
     setSelectedStations(favorites);

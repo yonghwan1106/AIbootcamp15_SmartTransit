@@ -52,12 +52,12 @@ const FavoriteStations: React.FC<FavoriteStationsProps> = React.memo(({ onStatio
     onStationSelect(newFavorites);
   };
 
-  const filteredStations = allStations.filter(station =>
+  const filteredStations = allStations.filter((station: Station) =>
     station.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     station.line_id.includes(searchTerm)
   );
 
-  const favoriteStations = allStations.filter(station => 
+  const favoriteStations = allStations.filter((station: Station) => 
     favorites.includes(station.id)
   );
 
