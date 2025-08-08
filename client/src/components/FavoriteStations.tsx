@@ -24,6 +24,7 @@ const FavoriteStations: React.FC<FavoriteStationsProps> = ({ onStationSelect, se
       setFavorites(parsedFavorites);
       onStationSelect(parsedFavorites);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadStations = async () => {

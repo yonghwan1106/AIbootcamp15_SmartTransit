@@ -52,6 +52,7 @@ const NotificationSystem: React.FC<NotificationSystemProps> = ({ stations, conge
   useEffect(() => {
     // 혼잡도 데이터가 변경될 때마다 알림 규칙 확인
     checkNotificationRules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [congestionData, rules]);
 
   const checkNotificationRules = () => {
