@@ -90,7 +90,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     loadInitialData();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (selectedStations.length === 0) return;
