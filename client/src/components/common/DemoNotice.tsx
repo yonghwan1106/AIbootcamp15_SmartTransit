@@ -12,7 +12,6 @@ const DemoNotice: React.FC = () => {
         <span className="demo-notice-icon">📊</span>
         <div className="demo-notice-text">
           <strong>2025 국민행복증진 교통·물류 공모전</strong>
-          <br />
           <small>프로토타입 - 시연용 데이터 사용 중</small>
         </div>
         <button 
