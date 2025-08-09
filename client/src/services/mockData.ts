@@ -1,11 +1,7 @@
 // Mock data for client-side development and deployment
-export interface Station {
-  id: string;
-  name: string;
-  line_id: string;
-  station_type: 'subway' | 'bus';
-  latitude: number;
-  longitude: number;
+import { Station, RouteStep } from '../types';
+
+export interface StationMock extends Station {
   address: string;
 }
 
@@ -37,7 +33,7 @@ export interface PredictionData {
 }
 
 // Mock stations data
-export const mockStations: Station[] = [
+export const mockStations: StationMock[] = [
   {
     id: '221',
     name: '강남역',
@@ -267,10 +263,10 @@ const getEventImpact = (targetTime: Date): string => {
 };
 
 // 경로 단계 생성
-const generateRouteSteps = (routeIndex: number) => {
-  const steps = [
+const generateRouteSteps = (routeIndex: number): RouteStep[] => {
+  const steps: RouteStep[] = [
     {
-      type: 'walk',
+      type: 'walk' as const,
       duration: 3 + Math.floor(Math.random() * 5),
       description: '출발지에서 지하철역까지 도보'
     }
@@ -279,43 +275,43 @@ const generateRouteSteps = (routeIndex: number) => {
   // 환승 횟수에 따른 단계 추가
   if (routeIndex === 0) {
     steps.push({
-      type: 'subway',
+      type: 'subway' as const,
       line: '2호선',
       duration: 35 + Math.floor(Math.random() * 10),
       congestion: 50 + Math.floor(Math.random() * 30)
     });
   } else if (routeIndex === 1) {
     steps.push({
-      type: 'subway',
+      type: 'subway' as const,
       line: '2호선',
       duration: 20 + Math.floor(Math.random() * 5),
       congestion: 45 + Math.floor(Math.random() * 20)
     });
     steps.push({
-      type: 'transfer',
+      type: 'transfer' as const,
       duration: 3,
       description: '9호선으로 환승'
     });
     steps.push({
-      type: 'subway',
+      type: 'subway' as const,
       line: '9호선',
       duration: 15 + Math.floor(Math.random() * 5),
       congestion: 60 + Math.floor(Math.random() * 25)
     });
   } else {
     steps.push({
-      type: 'bus',
+      type: 'bus' as const,
       line: '간선버스',
       duration: 25 + Math.floor(Math.random() * 10),
       congestion: 40 + Math.floor(Math.random() * 30)
     });
     steps.push({
-      type: 'transfer',
+      type: 'transfer' as const,
       duration: 2,
       description: '지하철로 환승'
     });
     steps.push({
-      type: 'subway',
+      type: 'subway' as const,
       line: '2호선',
       duration: 20 + Math.floor(Math.random() * 8),
       congestion: 55 + Math.floor(Math.random() * 25)
@@ -323,7 +319,7 @@ const generateRouteSteps = (routeIndex: number) => {
   }
   
   steps.push({
-    type: 'walk',
+    type: 'walk' as const,
     duration: 2 + Math.floor(Math.random() * 3),
     description: '지하철역에서 목적지까지 도보'
   });
