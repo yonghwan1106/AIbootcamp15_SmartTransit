@@ -107,7 +107,7 @@ const RouteRecommendation: React.FC = () => {
   };
 
   const getBestRouteIndex = () => {
-    if (!recommendations || recommendations.recommended_routes.length === 0) return -1;
+    if (!recommendations || !recommendations.recommended_routes || recommendations.recommended_routes.length === 0) return -1;
     
     // 추천 점수가 가장 높은 경로 찾기
     let bestIndex = 0;
@@ -279,11 +279,11 @@ const RouteRecommendation: React.FC = () => {
         <div className="recommendation-results">
           <div className="results-header">
             <h2>📍 {originStation?.name} → {destinationStation?.name}</h2>
-            <p>{recommendations.recommended_routes.length}개의 경로를 찾았습니다</p>
+            <p>{recommendations.recommended_routes?.length || 0}개의 경로를 찾았습니다</p>
           </div>
 
           <div className="routes-list">
-            {recommendations.recommended_routes.map((route, index) => {
+            {(recommendations.recommended_routes || []).map((route, index) => {
               const isBest = index === getBestRouteIndex();
               return (
                 <div key={route.route_id} className={`route-card ${isBest ? 'best-route' : ''}`}>

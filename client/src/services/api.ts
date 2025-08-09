@@ -317,9 +317,19 @@ export const recommendationApi = {
     if (USE_MOCK_DATA) {
       const routes = generateRecommendedRoutes(request.origin, request.destination);
       return createMockResponse({
-        origin: request.origin,
-        destination: request.destination,
-        routes,
+        user_id: request.user_id || 'anonymous',
+        recommended_routes: routes,
+        search_params: {
+          origin: request.origin,
+          destination: request.destination,
+          departure_time: request.departure_time || new Date().toISOString(),
+          preferences: request.preferences || {
+            max_congestion: 80,
+            max_walking_time: 15,
+            max_transfers: 2,
+            prefer_speed: true
+          }
+        },
         generated_at: new Date().toISOString()
       });
     }
