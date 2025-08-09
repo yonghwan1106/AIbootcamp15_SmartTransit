@@ -266,6 +266,71 @@ const getEventImpact = (targetTime: Date): string => {
   return 'none';
 };
 
+// 경로 단계 생성
+const generateRouteSteps = (routeIndex: number) => {
+  const steps = [
+    {
+      type: 'walk',
+      duration: 3 + Math.floor(Math.random() * 5),
+      description: '출발지에서 지하철역까지 도보'
+    }
+  ];
+  
+  // 환승 횟수에 따른 단계 추가
+  if (routeIndex === 0) {
+    steps.push({
+      type: 'subway',
+      line: '2호선',
+      duration: 35 + Math.floor(Math.random() * 10),
+      congestion: 50 + Math.floor(Math.random() * 30)
+    });
+  } else if (routeIndex === 1) {
+    steps.push({
+      type: 'subway',
+      line: '2호선',
+      duration: 20 + Math.floor(Math.random() * 5),
+      congestion: 45 + Math.floor(Math.random() * 20)
+    });
+    steps.push({
+      type: 'transfer',
+      duration: 3,
+      description: '9호선으로 환승'
+    });
+    steps.push({
+      type: 'subway',
+      line: '9호선',
+      duration: 15 + Math.floor(Math.random() * 5),
+      congestion: 60 + Math.floor(Math.random() * 25)
+    });
+  } else {
+    steps.push({
+      type: 'bus',
+      line: '간선버스',
+      duration: 25 + Math.floor(Math.random() * 10),
+      congestion: 40 + Math.floor(Math.random() * 30)
+    });
+    steps.push({
+      type: 'transfer',
+      duration: 2,
+      description: '지하철로 환승'
+    });
+    steps.push({
+      type: 'subway',
+      line: '2호선',
+      duration: 20 + Math.floor(Math.random() * 8),
+      congestion: 55 + Math.floor(Math.random() * 25)
+    });
+  }
+  
+  steps.push({
+    type: 'walk',
+    duration: 2 + Math.floor(Math.random() * 3),
+    description: '지하철역에서 목적지까지 도보'
+  });
+  
+  return steps;
+};
+
 export const generateRecommendedRoutes = (origin: { lat: number; lng: number }, destination: { lat: number; lng: number }) => {
   const routes = [];
   const baseTime = 45;
@@ -285,7 +350,8 @@ export const generateRecommendedRoutes = (origin: { lat: number; lng: number }, 
       transfers: i,
       avg_congestion: Math.round(Math.max(20, Math.min(90, congestionLevel))),
       departure_time: departureTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
-      arrival_time: arrivalTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+      arrival_time: arrivalTime.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+      steps: generateRouteSteps(i)
     });
   }
   

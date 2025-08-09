@@ -343,7 +343,7 @@ const RouteRecommendation: React.FC = () => {
                       </div>
                     </div>
 
-                    {route.steps.map((step, stepIndex) => (
+                    {(route.steps || []).map((step, stepIndex) => (
                       <div key={stepIndex} className="timeline-item step">
                         <div className="timeline-time">
                           {formatDuration(step.duration)}
