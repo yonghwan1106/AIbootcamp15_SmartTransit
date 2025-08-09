@@ -295,10 +295,14 @@ const Prediction: React.FC = () => {
             </div>
             <div className="model-info">
               <span className="model-accuracy">
-                📊 모델 정확도: {formatConfidence(predictionData.model_accuracy)}
+                📊 모델 정확도: {predictionData.model_accuracy ? 
+                  formatConfidence(predictionData.model_accuracy) : 
+                  '정확도 정보 없음'}
               </span>
               <span className="last-update">
-                🕐 업데이트: {formatTime(predictionData.prediction_params.generated_at, 'HH:mm')}
+                🕐 업데이트: {predictionData.prediction_params?.generated_at ? 
+                  formatTime(predictionData.prediction_params.generated_at, 'HH:mm') : 
+                  '업데이트 정보 없음'}
               </span>
             </div>
           </div>

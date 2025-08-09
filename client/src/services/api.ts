@@ -236,8 +236,13 @@ export const predictionApi = {
       const predictions = generateCongestionPrediction(stationId, params?.duration_hours || 3);
       return createMockResponse({
         station_id: stationId,
+        station_name: `Station ${stationId}`,
         predictions,
-        generated_at: new Date().toISOString()
+        model_accuracy: 0.85 + Math.random() * 0.1,
+        prediction_params: {
+          duration_hours: params?.duration_hours || 3,
+          generated_at: new Date().toISOString()
+        }
       });
     }
     
