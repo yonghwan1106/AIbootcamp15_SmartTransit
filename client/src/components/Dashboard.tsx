@@ -291,6 +291,14 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* 실시간 상태 표시 */}
+      <div className="status-section">
+        <div className="status-indicator">
+          <span className="status-dot online"></span>
+          <span className="status-text">실시간 데이터 업데이트 중</span>
+        </div>
+      </div>
+
       {/* 즐겨찾는 역 관리 */}
       <FavoriteStations
         onStationSelect={handleFavoriteStationsChange}

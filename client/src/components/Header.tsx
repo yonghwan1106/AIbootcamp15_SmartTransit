@@ -51,10 +51,7 @@ const Header: React.FC = () => {
         </nav>
 
         <div className="header-right">
-          <div className="status-indicator">
-            <span className="status-dot online"></span>
-            <span className="status-text">실시간</span>
-          </div>
+          {/* 실시간 상태 표시를 하단으로 이동 */}
         </div>
       </div>
     </header>
