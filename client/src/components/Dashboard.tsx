@@ -19,6 +19,7 @@ import { DEFAULT_SETTINGS, STORAGE_KEYS, ERROR_MESSAGES } from '../config/consta
 import FavoriteStations from './FavoriteStations';
 import NotificationSystem from './NotificationSystem';
 import UserProfile from './UserProfile';
+import DemoNotice from './common/DemoNotice';
 import './Dashboard.css';
 
 ChartJS.register(
@@ -447,6 +448,9 @@ const Dashboard: React.FC = () => {
         messages={toast.messages}
         onClose={toast.removeToast}
       />
+      
+      {/* 공모전 데모 안내 배너 */}
+      <DemoNotice />
     </div>
   );
 };

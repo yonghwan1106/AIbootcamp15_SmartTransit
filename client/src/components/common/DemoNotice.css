@@ -1,0 +1,105 @@
+.demo-notice {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: 320px;
+  animation: slideInUp 0.5s ease-out;
+}
+
+.demo-notice-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.demo-notice-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.demo-notice-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.demo-notice-text strong {
+  font-size: 14px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.demo-notice-text small {
+  font-size: 12px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.demo-notice-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  padding: 4px;
+}
+
+.demo-notice-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .demo-notice {
+    bottom: 15px;
+    right: 15px;
+    left: 15px;
+    max-width: none;
+  }
+  
+  .demo-notice-content {
+    padding: 14px 18px;
+  }
+  
+  .demo-notice-text strong {
+    font-size: 13px;
+  }
+  
+  .demo-notice-text small {
+    font-size: 11px;
+  }
+}
+
+/* 다크모드 대응 */
+@media (prefers-color-scheme: dark) {
+  .demo-notice-content {
+    background: linear-gradient(135deg, #4c63d2 0%, #5a67d8 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+}
