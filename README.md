@@ -42,7 +42,7 @@ smart-transit-predictor/
 ## 🏆 해커톤 핵심 구현 요구사항
 
 ✅ **광고 연동** - 구글 애드센스 & 카카오 애드픽 연동  
-🔄 **실시간 API** - 서울 열린데이터 광장 API 연동 예정  
+✅ **실시간 API** - 서울 열린데이터 광장 API 연동 완료  
 ✅ **프로토타입 구현** - 실제 작동하는 MVP 완성  
 🎨 **UI/UX 완성도** - 직관적이고 사용하기 쉬운 인터페이스  
 
@@ -92,6 +92,46 @@ smart-transit-predictor/
 ---
 
 **🏆 AI창업부트캠프 15기 바이브코딩 해커톤 출품작 (2025.09.06)**
+
+---
+
+## 🌐 Vercel 배포
+
+### 자동 배포 (권장)
+1. GitHub 저장소 연결
+2. [Vercel Dashboard](https://vercel.com/dashboard) → Import Project
+3. 환경변수 설정:
+   ```
+   SEOUL_METRO_API_KEY=your_api_key_here
+   ```
+4. 배포 완료!
+
+### CLI 배포
+```bash
+npm install -g vercel
+vercel login
+vercel --prod
+```
+
+### 프로덕션 빌드
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 🔧 환경변수 설정
+
+```bash
+# .env 파일 생성
+cp .env.example .env
+
+# 서울시 실시간 도착정보 API 키 설정
+SEOUL_METRO_API_KEY=your_api_key_here
+```
+
+**API 발급**: [서울열린데이터광장](http://data.seoul.go.kr) → 지하철실시간도착정보
 
 ---
 
