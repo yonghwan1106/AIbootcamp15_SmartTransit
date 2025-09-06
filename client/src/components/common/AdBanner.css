@@ -1,0 +1,64 @@
+.ad-banner {
+  margin: 16px 0;
+  text-align: center;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  padding: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.ad-banner.header-ad {
+  margin: 8px 0;
+  max-height: 100px;
+  background-color: #ffffff;
+}
+
+.ad-banner.sidebar-ad {
+  margin: 16px 0;
+  max-width: 300px;
+}
+
+.ad-banner.footer-ad {
+  margin: 20px 0;
+  background-color: #f1f3f4;
+}
+
+.ad-banner.inline-ad {
+  margin: 24px auto;
+  max-width: 728px;
+}
+
+/* 광고 매니저 스타일 */
+.ad-manager {
+  position: relative;
+}
+
+.ad-label {
+  text-align: center;
+  font-size: 10px;
+  color: #999;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kakao-ad {
+  background-color: #fee500;
+  border: 1px solid #d4ac0d;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+  .ad-banner.sidebar-ad {
+    max-width: 100%;
+  }
+  
+  .ad-banner.inline-ad {
+    max-width: 100%;
+    margin: 16px auto;
+  }
+  
+  .ad-manager .kakao-ad div {
+    max-width: 100% !important;
+  }
+}

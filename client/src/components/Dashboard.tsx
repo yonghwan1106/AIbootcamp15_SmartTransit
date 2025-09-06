@@ -20,6 +20,7 @@ import FavoriteStations from './FavoriteStations';
 import NotificationSystem from './NotificationSystem';
 import UserProfile from './UserProfile';
 import DemoNotice from './common/DemoNotice';
+import AdManager from './common/AdManager';
 import './Dashboard.css';
 
 ChartJS.register(
@@ -299,6 +300,12 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* 상단 광고 배너 */}
+      <AdManager 
+        position="header"
+        style={{ margin: '16px 0' }}
+      />
+
       {/* 즐겨찾는 역 관리 */}
       <FavoriteStations
         onStationSelect={handleFavoriteStationsChange}
@@ -392,6 +399,12 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* 인라인 광고 배너 */}
+      <AdManager 
+        position="inline"
+        style={{ margin: '24px auto' }}
+      />
+
       {/* 요약 통계 */}
       <div className="summary-stats animate-fade-in-up">
         <h2>현재 상황 요약</h2>
@@ -455,6 +468,11 @@ const Dashboard: React.FC = () => {
       <ToastContainer
         messages={toast.messages}
         onClose={toast.removeToast}
+      />
+      {/* 하단 광고 배너 */}
+      <AdManager 
+        position="footer"
+        style={{ margin: '32px 0 16px 0' }}
       />
       
       {/* 공모전 데모 안내 배너 */}
