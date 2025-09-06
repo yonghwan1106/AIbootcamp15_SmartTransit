@@ -1,0 +1,422 @@
+.interaction-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.interaction-loader--minimal {
+  padding: 8px 16px;
+  background: transparent;
+  backdrop-filter: none;
+  border: none;
+  box-shadow: none;
+}
+
+.interaction-loader--full {
+  padding: 40px 20px;
+  min-height: 200px;
+  flex-direction: column;
+}
+
+.interaction-loader__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 지하철 애니메이션 */
+.interaction-loader__animation {
+  width: 200px;
+  height: 80px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.metro-animation {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.metro-train {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 20px;
+  left: 0;
+  animation: trainMove 3s ease-in-out infinite;
+}
+
+.train-car {
+  width: 20px;
+  height: 16px;
+  border-radius: 4px;
+  margin-right: 2px;
+  position: relative;
+}
+
+.train-car--head {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  border-radius: 8px 4px 4px 8px;
+  width: 24px;
+}
+
+.train-car--head::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 4px;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+}
+
+.train-car--body {
+  background: linear-gradient(135deg, #4CAF50, #388E3C);
+}
+
+.train-car--tail {
+  background: linear-gradient(135deg, #FF9800, #F57C00);
+  border-radius: 4px 8px 8px 4px;
+}
+
+.metro-track {
+  position: absolute;
+  bottom: 15px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    #ccc 0%, #999 50%, #ccc 100%);
+  border-radius: 1px;
+}
+
+.metro-track::before,
+.metro-track::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  width: 100%;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 8px,
+    #999 8px,
+    #999 10px
+  );
+}
+
+.metro-stations {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.station-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  position: relative;
+}
+
+.station-dot--active {
+  background: #4CAF50;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.6);
+  animation: stationPulse 2s ease-in-out infinite;
+}
+
+@keyframes trainMove {
+  0% {
+    transform: translateX(-30px);
+  }
+  50% {
+    transform: translateX(150px);
+  }
+  100% {
+    transform: translateX(-30px);
+  }
+}
+
+@keyframes stationPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+/* 스피너 */
+.interaction-loader__spinner {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.spinner-rings {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.spinner-ring {
+  position: absolute;
+  border: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+}
+
+.spinner-ring--1 {
+  width: 60px;
+  height: 60px;
+  top: 0;
+  left: 0;
+  border-top-color: #4CAF50;
+  animation-duration: 1.5s;
+}
+
+.spinner-ring--2 {
+  width: 46px;
+  height: 46px;
+  top: 7px;
+  left: 7px;
+  border-right-color: #2196F3;
+  animation-duration: 2s;
+  animation-direction: reverse;
+}
+
+.spinner-ring--3 {
+  width: 32px;
+  height: 32px;
+  top: 14px;
+  left: 14px;
+  border-bottom-color: #FF9800;
+  animation-duration: 1s;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 텍스트 */
+.interaction-loader__text {
+  text-align: center;
+}
+
+.loader-message {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.loader-submessage {
+  font-size: 12px;
+  color: #666;
+  opacity: 0.8;
+}
+
+/* 프로그레스 바 */
+.interaction-loader__progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: #f0f0f0;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800);
+  background-size: 200% 100%;
+  border-radius: 2px;
+  animation: progressMove 2s ease-in-out infinite;
+}
+
+@keyframes progressMove {
+  0% {
+    width: 0%;
+    background-position: 200% 0;
+  }
+  50% {
+    width: 70%;
+    background-position: 0% 0;
+  }
+  100% {
+    width: 100%;
+    background-position: -200% 0;
+  }
+}
+
+.progress-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+  animation: dotPulse 1.5s ease-in-out infinite;
+}
+
+.progress-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.progress-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.progress-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+  0%, 60%, 100% {
+    background: #ccc;
+    transform: scale(1);
+  }
+  30% {
+    background: #4CAF50;
+    transform: scale(1.2);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .interaction-loader {
+    padding: 16px;
+  }
+
+  .interaction-loader--full {
+    padding: 30px 16px;
+    min-height: 160px;
+  }
+
+  .interaction-loader__animation {
+    width: 160px;
+    height: 60px;
+  }
+
+  .interaction-loader__spinner {
+    width: 50px;
+    height: 50px;
+  }
+
+  .spinner-ring--1 {
+    width: 50px;
+    height: 50px;
+  }
+
+  .spinner-ring--2 {
+    width: 38px;
+    height: 38px;
+    top: 6px;
+    left: 6px;
+  }
+
+  .spinner-ring--3 {
+    width: 26px;
+    height: 26px;
+    top: 12px;
+    left: 12px;
+  }
+
+  .loader-message {
+    font-size: 14px;
+  }
+
+  .loader-submessage {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .interaction-loader__animation {
+    width: 140px;
+    height: 50px;
+  }
+
+  .interaction-loader__content {
+    gap: 12px;
+  }
+
+  .loader-message {
+    font-size: 13px;
+  }
+
+  .loader-submessage {
+    font-size: 10px;
+  }
+}
+
+/* 다크 모드 대응 */
+@media (prefers-color-scheme: dark) {
+  .interaction-loader {
+    background: rgba(30, 30, 30, 0.95);
+  }
+
+  .loader-message {
+    color: #fff;
+  }
+
+  .loader-submessage {
+    color: #ccc;
+  }
+
+  .progress-bar {
+    background: #444;
+  }
+
+  .metro-track {
+    background: linear-gradient(90deg, #555 0%, #777 50%, #555 100%);
+  }
+
+  .metro-track::before,
+  .metro-track::after {
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 8px,
+      #777 8px,
+      #777 10px
+    );
+  }
+
+  .station-dot {
+    background: #666;
+  }
+}

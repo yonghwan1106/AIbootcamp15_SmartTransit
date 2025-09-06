@@ -1,0 +1,56 @@
+.fade-transition {
+  will-change: transform, opacity;
+}
+
+.fade-transition--up {
+  transform-origin: center bottom;
+}
+
+.fade-transition--down {
+  transform-origin: center top;
+}
+
+.fade-transition--left {
+  transform-origin: right center;
+}
+
+.fade-transition--right {
+  transform-origin: left center;
+}
+
+.fade-transition--fade {
+  transform-origin: center;
+}
+
+/* 스태거 애니메이션을 위한 헬퍼 클래스 */
+.stagger-container > .fade-transition:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.stagger-container > .fade-transition:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.stagger-container > .fade-transition:nth-child(3) {
+  animation-delay: 200ms;
+}
+
+.stagger-container > .fade-transition:nth-child(4) {
+  animation-delay: 300ms;
+}
+
+.stagger-container > .fade-transition:nth-child(5) {
+  animation-delay: 400ms;
+}
+
+.stagger-container > .fade-transition:nth-child(6) {
+  animation-delay: 500ms;
+}
+
+/* 반응형 애니메이션 */
+@media (prefers-reduced-motion: reduce) {
+  .fade-transition {
+    transition: opacity 150ms ease-in-out !important;
+    transform: none !important;
+  }
+}

@@ -232,7 +232,7 @@ const Prediction: React.FC = () => {
       <div className="prediction-header">
         <h1>개인 맞춤형 혼잡도 예측 알림 서비스</h1>
         <p className="prediction-contest">
-          2025 국민행복증진 교통·물류 아이디어 공모전 출품작
+          AI창업부트캠프 15기 오프라인 해커톤 출품작
         </p>
         <p className="prediction-subtitle">
           AI가 분석한 향후 혼잡도 변화를 확인하고 최적의 이용 시간을 찾아보세요

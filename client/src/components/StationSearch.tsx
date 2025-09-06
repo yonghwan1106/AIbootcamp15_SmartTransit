@@ -83,7 +83,7 @@ const StationSearch: React.FC = () => {
       <div className="search-header">
         <h1>개인 맞춤형 혼잡도 예측 알림 서비스</h1>
         <p className="search-contest">
-          2025 국민행복증진 교통·물류 아이디어 공모전 출품작
+          AI창업부트캠프 15기 오프라인 해커톤 출품작
         </p>
         <p className="search-subtitle">
           검색하고 싶은 역명을 입력하여 실시간 혼잡도를 확인하세요

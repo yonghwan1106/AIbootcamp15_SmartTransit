@@ -12,15 +12,20 @@ import {
 } from 'chart.js';
 import { stationApi, congestionApi } from '../services/api';
 import { Station, CongestionData } from '../types';
-import { getCongestionColor, getCongestionIcon, formatTime, formatRelativeTime } from '../utils/helpers';
+import { formatTime, formatRelativeTime } from '../utils/helpers';
 import { useToast } from '../hooks/useToast';
 import { ToastContainer } from './common/Toast';
 import { DEFAULT_SETTINGS, STORAGE_KEYS, ERROR_MESSAGES } from '../config/constants';
 import FavoriteStations from './FavoriteStations';
 import NotificationSystem from './NotificationSystem';
 import UserProfile from './UserProfile';
-import DemoNotice from './common/DemoNotice';
 import AdManager from './common/AdManager';
+import CongestionMeter from './common/CongestionMeter';
+import TrainArrivalCard from './common/TrainArrivalCard';
+import InteractionLoader from './common/InteractionLoader';
+import FadeTransition from './common/FadeTransition';
+import AnimatedCounter from './common/AnimatedCounter';
+import AccessibilityButton from './common/AccessibilityButton';
 import './Dashboard.css';
 
 ChartJS.register(
@@ -251,10 +256,11 @@ const Dashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="dashboard">
-        <div className="loading-container">
-          <div className="loading-spinner">🚇</div>
-          <p>데이터를 불러오는 중...</p>
-        </div>
+        <InteractionLoader 
+          variant="full"
+          message="스마트 교통 데이터 로딩 중"
+          submessage="실시간 지하철 정보를 가져오고 있습니다"
+        />
       </div>
     );
   }
@@ -275,10 +281,13 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
+      {/* 스킵 네비게이션 */}
+      <a href="#main-content" className="skip-link">메인 콘텐츠로 바로가기</a>
+      
+      <div className="dashboard-header" id="main-content">
         <h1>개인 맞춤형 혼잡도 예측 알림 서비스</h1>
         <p className="dashboard-contest">
-          2025 국민행복증진 교통·물류 아이디어 공모전 출품작
+          AI창업부트캠프 15기 오프라인 해커톤 출품작
         </p>
         <p className="dashboard-subtitle">
           AI와 빅데이터 기술로 대중교통 혼잡도를 예측하고 개인 맞춤형 경로를 추천합니다
@@ -341,91 +350,82 @@ const Dashboard: React.FC = () => {
       />
 
       {/* 실시간 혼잡도 카드 */}
-      <div className="congestion-cards">
+      <div className="congestion-cards stagger-container">
         {selectedStations.map((station, index) => {
           const congestion = congestionData[station.id];
           return (
-            <div key={station.id} className="congestion-card stagger-item" style={{ animationDelay: `${index * 0.1}s` }}>
-              <div className="card-header">
-                <h3>{station.name}</h3>
-                <span className="line-badge">
-                  {station.line_id}호선
-                </span>
-              </div>
-              
-              {congestion ? (
-                <div className="card-content">
-                  <div className="congestion-main">
-                    <span className="congestion-icon">
-                      {getCongestionIcon(congestion.congestion_level)}
-                    </span>
-                    <div className="congestion-info">
-                      <div className="congestion-level">
-                        {congestion.current_congestion}%
+            <FadeTransition 
+              key={station.id} 
+              direction="up" 
+              delay={index * 100}
+              className="congestion-card-wrapper"
+            >
+              <div className="congestion-card">
+                <div className="card-header">
+                  <h3>{station.name}</h3>
+                  <span className="line-badge">
+                    {station.line_id}호선
+                  </span>
+                </div>
+                
+                {congestion ? (
+                  <div className="card-content">
+                    <div className="congestion-main">
+                      <CongestionMeter 
+                        level={congestion.current_congestion}
+                        size="medium"
+                        animated={true}
+                        className="station-congestion-meter"
+                      />
+                    </div>
+                    
+                    <div className="card-details">
+                      <div className="detail-item">
+                        <span className="detail-label">승객 수:</span>
+                        <span className="detail-value">
+                          <AnimatedCounter 
+                            end={congestion.passenger_count} 
+                            suffix="명"
+                            duration={1500}
+                            delay={200}
+                          />
+                        </span>
                       </div>
-                      <div className="congestion-text">
-                        {congestion.congestion_level === 'low' ? '여유' :
-                         congestion.congestion_level === 'medium' ? '보통' : '혼잡'}
+                      <div className="detail-item">
+                        <span className="detail-label">업데이트:</span>
+                        <span className="detail-value">
+                          {formatRelativeTime(congestion.updated_at)}
+                        </span>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="card-details">
-                    <div className="detail-item">
-                      <span className="detail-label">승객 수:</span>
-                      <span className="detail-value">
-                        {congestion.passenger_count}명
-                      </span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">업데이트:</span>
-                      <span className="detail-value">
-                        {formatRelativeTime(congestion.updated_at)}
-                      </span>
-                    </div>
-                  </div>
 
-                  {/* 열차별 혼잡도 */}
-                  <div className="vehicles-info">
-                    <h4>다음 열차</h4>
-                    <div className="vehicles-list">
-                      {congestion.vehicles.slice(0, 2).map((vehicle, index) => (
-                        <div key={vehicle.vehicle_id} className="vehicle-item">
-                          <div className="vehicle-time">
-                            {vehicle.arrival_time}
-                          </div>
-                          <div className="vehicle-congestion">
-                            <div 
-                              className="congestion-bar"
-                              style={{ 
-                                width: `${vehicle.congestion}%`,
-                                backgroundColor: getCongestionColor(vehicle.congestion)
-                              }}
-                            />
-                            <span>{vehicle.congestion}%</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    {/* 향상된 열차 도착 정보 */}
+                    <TrainArrivalCard 
+                      trains={congestion.vehicles}
+                      className="station-trains"
+                    />
                   </div>
-                </div>
-              ) : (
-                <div className="card-loading">
-                  <div className="loading-spinner animate-spin">⏳</div>
-                  <p>로딩 중...</p>
-                </div>
-              )}
-            </div>
+                ) : (
+                  <InteractionLoader 
+                    variant="default"
+                    message={useRealApi ? "실시간 데이터 로딩 중..." : "시뮬레이션 데이터 생성 중..."}
+                    submessage={useRealApi ? "서울시 API에서 정보를 가져오고 있습니다" : "데모용 혼잡도 정보를 생성하고 있습니다"}
+                  />
+                )}
+              </div>
+            </FadeTransition>
           );
         })}
       </div>
 
       {/* 혼잡도 추이 차트 */}
-      <div className="chart-container animate-fade-in-up">
-        <div className="chart-wrapper">
-          <Line data={chartData} options={chartOptions} />
+      <FadeTransition direction="up" delay={400}>
+        <div className="chart-container">
+          <div className="chart-wrapper">
+            <Line data={chartData} options={chartOptions} />
+          </div>
         </div>
-      </div>
+      </FadeTransition>
 
       {/* 인라인 광고 배너 */}
       <AdManager 
@@ -434,50 +434,76 @@ const Dashboard: React.FC = () => {
       />
 
       {/* 요약 통계 */}
-      <div className="summary-stats animate-fade-in-up">
-        <h2>현재 상황 요약</h2>
-        <div className="stats-grid">
-          <div className="stat-card hover-lift">
-            <div className="stat-icon">🚇</div>
-            <div className="stat-content">
-              <div className="stat-number">
-                {Object.keys(congestionData).length}
+      <FadeTransition direction="up" delay={600}>
+        <div className="summary-stats">
+          <h2>현재 상황 요약</h2>
+          <div className="stats-grid stagger-container">
+            <FadeTransition direction="up" delay={700}>
+              <div className="stat-card hover-lift">
+                <div className="stat-icon">🚇</div>
+                <div className="stat-content">
+                  <div className="stat-number">
+                    <AnimatedCounter 
+                      end={Object.keys(congestionData).length}
+                      duration={1000}
+                      delay={800}
+                    />
+                  </div>
+                  <div className="stat-label">모니터링 중인 역</div>
+                </div>
               </div>
-              <div className="stat-label">모니터링 중인 역</div>
-            </div>
-          </div>
-          <div className="stat-card hover-lift">
-            <div className="stat-icon">📊</div>
-            <div className="stat-content">
-              <div className="stat-number animate-count-up">
-                {Object.values(congestionData).length > 0 ? 
-                  Math.round(
-                    Object.values(congestionData)
-                      .reduce((sum, data) => sum + data.current_congestion, 0) /
-                    Object.values(congestionData).length
-                  ) + '%'
-                  : '0%'
-                }
+            </FadeTransition>
+            <FadeTransition direction="up" delay={800}>
+              <div className="stat-card hover-lift">
+                <div className="stat-icon">📊</div>
+                <div className="stat-content">
+                  <div className="stat-number">
+                    <AnimatedCounter 
+                      end={Object.values(congestionData).length > 0 ? 
+                        Math.round(
+                          Object.values(congestionData)
+                            .reduce((sum, data) => sum + data.current_congestion, 0) /
+                          Object.values(congestionData).length
+                        )
+                        : 0
+                      }
+                      suffix="%"
+                      duration={1200}
+                      delay={900}
+                    />
+                  </div>
+                  <div className="stat-label">평균 혼잡도</div>
+                </div>
               </div>
-              <div className="stat-label">평균 혼잡도</div>
-            </div>
-          </div>
-          <div className="stat-card hover-lift">
-            <div className="stat-icon animate-pulse">⚡</div>
-            <div className="stat-content">
-              <div className="stat-number">실시간</div>
-              <div className="stat-label">데이터 업데이트</div>
-            </div>
-          </div>
-          <div className="stat-card hover-lift">
-            <div className="stat-icon">🎯</div>
-            <div className="stat-content">
-              <div className="stat-number animate-count-up">90%+</div>
-              <div className="stat-label">예측 정확도</div>
-            </div>
+            </FadeTransition>
+            <FadeTransition direction="up" delay={900}>
+              <div className="stat-card hover-lift">
+                <div className="stat-icon animate-pulse">⚡</div>
+                <div className="stat-content">
+                  <div className="stat-number">실시간</div>
+                  <div className="stat-label">데이터 업데이트</div>
+                </div>
+              </div>
+            </FadeTransition>
+            <FadeTransition direction="up" delay={1000}>
+              <div className="stat-card hover-lift">
+                <div className="stat-icon">🎯</div>
+                <div className="stat-content">
+                  <div className="stat-number">
+                    <AnimatedCounter 
+                      end={90}
+                      suffix="%+"
+                      duration={1500}
+                      delay={1100}
+                    />
+                  </div>
+                  <div className="stat-label">예측 정확도</div>
+                </div>
+              </div>
+            </FadeTransition>
           </div>
         </div>
-      </div>
+      </FadeTransition>
 
       {/* 알림 시스템 */}
       <NotificationSystem
@@ -503,8 +529,9 @@ const Dashboard: React.FC = () => {
         style={{ margin: '32px 0 16px 0' }}
       />
       
-      {/* 공모전 데모 안내 배너 */}
-      <DemoNotice />
+      
+      {/* 접근성 버튼 */}
+      <AccessibilityButton />
     </div>
   );
 };

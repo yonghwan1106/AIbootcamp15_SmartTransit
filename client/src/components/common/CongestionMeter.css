@@ -1,0 +1,152 @@
+.congestion-meter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+}
+
+.congestion-meter__circle-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.congestion-meter__svg {
+  transform: rotate(-90deg); /* 시계 12시 방향에서 시작 */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.congestion-meter__progress-circle {
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.congestion-meter--animated .congestion-meter__progress-circle {
+  animation: progressAnimation 2s ease-out forwards;
+}
+
+@keyframes progressAnimation {
+  0% {
+    stroke-dashoffset: 282.74; /* 전체 둘레 */
+  }
+  100% {
+    stroke-dashoffset: var(--final-offset);
+  }
+}
+
+.congestion-meter__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.congestion-meter__icon {
+  font-size: 1.8em;
+  margin-bottom: 2px;
+}
+
+.congestion-meter__percentage {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #333;
+  line-height: 1;
+}
+
+.congestion-meter__status {
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.congestion-meter__description {
+  margin-top: 8px;
+  font-size: 0.85em;
+  color: #666;
+  text-align: center;
+}
+
+/* 크기별 스타일 */
+.congestion-meter--small .congestion-meter__svg {
+  width: 80px;
+  height: 80px;
+}
+
+.congestion-meter--small .congestion-meter__icon {
+  font-size: 1.2em;
+}
+
+.congestion-meter--small .congestion-meter__percentage {
+  font-size: 1em;
+}
+
+.congestion-meter--small .congestion-meter__status {
+  font-size: 0.6em;
+}
+
+.congestion-meter--medium .congestion-meter__svg {
+  width: 120px;
+  height: 120px;
+}
+
+.congestion-meter--large .congestion-meter__svg {
+  width: 160px;
+  height: 160px;
+}
+
+.congestion-meter--large .congestion-meter__icon {
+  font-size: 2.5em;
+}
+
+.congestion-meter--large .congestion-meter__percentage {
+  font-size: 1.8em;
+}
+
+.congestion-meter--large .congestion-meter__status {
+  font-size: 1em;
+}
+
+/* 호버 효과 */
+.congestion-meter:hover .congestion-meter__svg {
+  transform: rotate(-90deg) scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+/* 다크 모드 대응 */
+@media (prefers-color-scheme: dark) {
+  .congestion-meter__percentage {
+    color: #fff;
+  }
+  
+  .congestion-meter__description {
+    color: #ccc;
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .congestion-meter--medium .congestion-meter__svg {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .congestion-meter--large .congestion-meter__svg {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .congestion-meter--large .congestion-meter__icon {
+    font-size: 2em;
+  }
+  
+  .congestion-meter--large .congestion-meter__percentage {
+    font-size: 1.5em;
+  }
+}
