@@ -3,13 +3,14 @@ const router = express.Router();
 const db = require('../database/init');
 const { generateRealtimeCongestion, generateVehicleCongestion, STATION_CHARACTERISTICS } = require('../utils/mockData');
 const moment = require('moment');
+const seoulMetroApi = require('../services/seoulMetroApi');
 
 /**
  * GET /api/congestion/realtime
- * 실시간 혼잡도 조회
+ * 실시간 혼잡도 조회 - 서울시 실제 API 연동
  */
-router.get('/realtime', (req, res) => {
-  const { station_id, line_id, direction, vehicle_type } = req.query;
+router.get('/realtime', async (req, res) => {
+  const { station_id, line_id, direction, vehicle_type, use_real_api } = req.query;
   
   if (!station_id) {
     return res.status(400).json({
@@ -18,15 +19,14 @@ router.get('/realtime', (req, res) => {
     });
   }
   
-  // 역 정보 먼저 확인
-  db.get('SELECT * FROM stations WHERE id = ?', [station_id], (err, station) => {
-    if (err) {
-      console.error('Error fetching station:', err.message);
-      return res.status(500).json({
-        status: 'error',
-        message: 'Internal server error'
+  try {
+    // 역 정보 먼저 확인
+    const station = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM stations WHERE id = ?', [station_id], (err, station) => {
+        if (err) reject(err);
+        else resolve(station);
       });
-    }
+    });
     
     if (!station) {
       return res.status(404).json({
@@ -34,48 +34,129 @@ router.get('/realtime', (req, res) => {
         message: 'Station not found'
       });
     }
-    
-    // 실시간 혼잡도 생성
-    const realtimeData = generateRealtimeCongestion(station_id);
-    const vehicles = generateVehicleCongestion(station_id);
-    
-    // 혼잡도 레벨 결정
-    let congestionLevel;
-    if (realtimeData.congestion_level <= 30) {
-      congestionLevel = 'low';
-    } else if (realtimeData.congestion_level <= 70) {
-      congestionLevel = 'medium';
-    } else {
-      congestionLevel = 'heavy';
-    }
-    
-    // 데이터베이스에 저장 (선택사항)
-    db.run(
-      'INSERT INTO congestion_data (station_id, vehicle_id, congestion_level, passenger_count, data_source) VALUES (?, ?, ?, ?, ?)',
-      [station_id, realtimeData.vehicle_id, realtimeData.congestion_level, realtimeData.passenger_count, 'simulated'],
-      (err) => {
-        if (err) {
-          console.error('Error saving congestion data:', err.message);
+
+    let responseData;
+
+    // use_real_api 파라미터가 true이면 실제 서울시 API 사용
+    if (use_real_api === 'true') {
+      try {
+        // 역명에서 '역' 제거 (서울시 API는 역명만 사용)
+        const stationName = station.name.replace('역', '');
+        const realApiData = await seoulMetroApi.getRealtimeArrival(stationName);
+        
+        if (realApiData && realApiData.trains && realApiData.trains.length > 0) {
+          // 서울시 API 데이터를 우리 형식으로 변환
+          const avgCongestion = Math.round(
+            realApiData.trains.reduce((sum, train) => sum + train.congestion, 0) / 
+            realApiData.trains.length
+          );
+          
+          const vehicles = realApiData.trains.map((train, index) => ({
+            vehicle_id: `${station.id}_${train.line}_${index}`,
+            congestion: train.congestion,
+            arrival_time: train.arrivalMsg,
+            car_positions: Array.from({length: 6}, () => 
+              Math.max(30, Math.min(100, train.congestion + (Math.random() - 0.5) * 20))
+            ),
+            direction: train.direction,
+            destination: train.destination,
+            train_type: train.trainType
+          }));
+
+          responseData = {
+            station_id: station_id,
+            station_name: station.name,
+            line_id: station.line_id,
+            current_congestion: avgCongestion,
+            congestion_level: avgCongestion <= 30 ? 'low' : 
+                            avgCongestion <= 70 ? 'medium' : 'heavy',
+            passenger_count: Math.round(avgCongestion * 15), // 추정 승객 수
+            vehicles: vehicles,
+            updated_at: realApiData.lastUpdate,
+            data_source: realApiData.dataSource,
+            api_info: {
+              station_searched: stationName,
+              trains_found: realApiData.trains.length,
+              last_update: realApiData.lastUpdate
+            }
+          };
+
+          // 실제 데이터 DB 저장
+          db.run(
+            'INSERT INTO congestion_data (station_id, vehicle_id, congestion_level, passenger_count, data_source) VALUES (?, ?, ?, ?, ?)',
+            [station_id, `real_${Date.now()}`, avgCongestion, responseData.passenger_count, realApiData.dataSource],
+            (err) => {
+              if (err) {
+                console.error('Error saving real API data:', err.message);
+              }
+            }
+          );
+
+        } else {
+          // 실제 API 호출 실패 시 시뮬레이션 데이터로 fallback
+          throw new Error('No real API data available');
         }
+        
+      } catch (apiError) {
+        console.log(`Real API failed for ${station.name}, falling back to simulation:`, apiError.message);
+        // fallback to simulation
+        responseData = generateSimulationData(station_id, station);
       }
-    );
-    
+    } else {
+      // 기본값: 시뮬레이션 데이터 사용
+      responseData = generateSimulationData(station_id, station);
+    }
+
     res.json({
       status: 'success',
-      data: {
-        station_id: station_id,
-        station_name: station.name,
-        line_id: station.line_id,
-        current_congestion: realtimeData.congestion_level,
-        congestion_level: congestionLevel,
-        passenger_count: realtimeData.passenger_count,
-        vehicles: vehicles,
-        updated_at: realtimeData.timestamp,
-        data_source: 'simulated'
-      }
+      data: responseData
     });
-  });
+
+  } catch (error) {
+    console.error('Error in realtime congestion API:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error'
+    });
+  }
 });
+
+/**
+ * 시뮬레이션 데이터 생성 함수
+ * @param {string} station_id - 역 ID
+ * @param {Object} station - 역 정보
+ * @returns {Object} 시뮬레이션 데이터
+ */
+function generateSimulationData(station_id, station) {
+  const realtimeData = generateRealtimeCongestion(station_id);
+  const vehicles = generateVehicleCongestion(station_id);
+  
+  const congestionLevel = realtimeData.congestion_level <= 30 ? 'low' : 
+                         realtimeData.congestion_level <= 70 ? 'medium' : 'heavy';
+  
+  // 데이터베이스에 저장
+  db.run(
+    'INSERT INTO congestion_data (station_id, vehicle_id, congestion_level, passenger_count, data_source) VALUES (?, ?, ?, ?, ?)',
+    [station_id, realtimeData.vehicle_id, realtimeData.congestion_level, realtimeData.passenger_count, 'simulated'],
+    (err) => {
+      if (err) {
+        console.error('Error saving congestion data:', err.message);
+      }
+    }
+  );
+  
+  return {
+    station_id: station_id,
+    station_name: station.name,
+    line_id: station.line_id,
+    current_congestion: realtimeData.congestion_level,
+    congestion_level: congestionLevel,
+    passenger_count: realtimeData.passenger_count,
+    vehicles: vehicles,
+    updated_at: realtimeData.timestamp,
+    data_source: 'simulated'
+  };
+}
 
 /**
  * GET /api/congestion/history
@@ -223,6 +304,59 @@ router.get('/overview', (req, res) => {
       }
     });
   });
+});
+
+/**
+ * GET /api/congestion/seoul-metro-test
+ * 서울시 지하철 실시간 API 직접 테스트
+ */
+router.get('/seoul-metro-test', async (req, res) => {
+  const { station_name = '강남' } = req.query;
+  
+  try {
+    console.log(`Testing Seoul Metro API for station: ${station_name}`);
+    const apiData = await seoulMetroApi.getRealtimeArrival(station_name);
+    
+    res.json({
+      status: 'success',
+      data: {
+        requested_station: station_name,
+        api_response: apiData,
+        supported_stations: seoulMetroApi.getSupportedStations(),
+        cache_info: {
+          cache_timeout: '30 seconds',
+          data_source: apiData ? apiData.dataSource : 'unknown'
+        }
+      }
+    });
+    
+  } catch (error) {
+    console.error('Seoul Metro API test error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: error.message,
+      supported_stations: seoulMetroApi.getSupportedStations()
+    });
+  }
+});
+
+/**
+ * POST /api/congestion/clear-cache
+ * API 캐시 정리
+ */
+router.post('/clear-cache', (req, res) => {
+  try {
+    seoulMetroApi.clearCache();
+    res.json({
+      status: 'success',
+      message: 'API cache cleared successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to clear cache'
+    });
+  }
 });
 
 module.exports = router;

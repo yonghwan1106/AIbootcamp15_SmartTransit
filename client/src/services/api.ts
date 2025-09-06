@@ -150,7 +150,8 @@ export const congestionApi = {
   getRealtime: async (stationId: string, params?: { 
     line_id?: string; 
     direction?: string; 
-    vehicle_type?: 'subway' | 'bus' 
+    vehicle_type?: 'subway' | 'bus';
+    use_real_api?: boolean;
   }) => {
     if (USE_MOCK_DATA) {
       const congestionData = generateRealtimeCongestion(stationId);

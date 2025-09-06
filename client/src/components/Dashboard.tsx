@@ -40,6 +40,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showUserProfile, setShowUserProfile] = useState(false);
+  const [useRealApi, setUseRealApi] = useState(false);
   const toast = useToast();
 
   // 기본 즐겨찾기 역들 (constants에서 가져오기)
@@ -51,7 +52,7 @@ const Dashboard: React.FC = () => {
 
     try {
       const congestionPromises = stationsToLoad.map(station =>
-        congestionApi.getRealtime(station.id)
+        congestionApi.getRealtime(station.id, { use_real_api: useRealApi })
       );
 
       const results = await Promise.allSettled(congestionPromises);
@@ -88,7 +89,7 @@ const Dashboard: React.FC = () => {
         '실시간 혼잡도 정보를 불러올 수 없습니다.'
       );
     }
-  }, [selectedStations, toast]);
+  }, [selectedStations, toast, useRealApi]);
 
   useEffect(() => {
     loadInitialData();
@@ -283,6 +284,33 @@ const Dashboard: React.FC = () => {
           AI와 빅데이터 기술로 대중교통 혼잡도를 예측하고 개인 맞춤형 경로를 추천합니다
         </p>
         <div className="dashboard-actions">
+          <div className="api-toggle-container">
+            <label className="api-toggle-label">
+              <input
+                type="checkbox"
+                checked={useRealApi}
+                onChange={(e) => {
+                  setUseRealApi(e.target.checked);
+                  if (e.target.checked) {
+                    toast.info(
+                      '실시간 API 활성화',
+                      '서울시 실제 지하철 데이터를 사용합니다. 데이터 로딩이 다소 시간이 걸릴 수 있습니다.'
+                    );
+                  } else {
+                    toast.info(
+                      '시뮬레이션 모드',
+                      '데모용 시뮬레이션 데이터를 사용합니다.'
+                    );
+                  }
+                }}
+                className="api-toggle-checkbox"
+              />
+              <span className="api-toggle-slider"></span>
+              <span className="api-toggle-text">
+                {useRealApi ? '🌐 실시간 API' : '🎮 시뮬레이션'}
+              </span>
+            </label>
+          </div>
           <button 
             className="profile-btn"
             onClick={() => setShowUserProfile(true)}
